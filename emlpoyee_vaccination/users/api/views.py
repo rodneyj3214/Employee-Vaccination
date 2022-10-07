@@ -2,12 +2,12 @@ from django.contrib.auth import get_user_model
 from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import ModelViewSet
 
 from ..filters.users import EmployeesFilter
+from ..permissions import IsAdmin
 from ..serializers.employees import EmployeeModelSerializer
 from ..serializers.users import (
     UserLoginSerializer,
@@ -18,7 +18,7 @@ from ..serializers.users import (
 User = get_user_model()
 
 
-class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+class UserViewSet(ModelViewSet):
     serializer_class = UserModelSerializer
     queryset = User.objects.all()
     lookup_field = "username"
@@ -36,6 +36,9 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             permissions = [AllowAny]
         else:
             permissions = [IsAuthenticated]
+
+        if self.action not in ["employee", "list", "retrieve"]:
+            permissions.append(IsAdmin)
         return [permission() for permission in permissions]
 
     @action(detail=False, methods=["post"])
