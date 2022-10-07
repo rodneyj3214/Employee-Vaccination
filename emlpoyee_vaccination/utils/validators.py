@@ -7,7 +7,7 @@ phone_regex = RegexValidator(
 )
 
 alphanumeric_blank_validator = RegexValidator(
-    regex=r"^[a-zA-Z\sÀ-ÿ\u00f1\u00d1]\s]*$",
+    regex=r"^[a-zA-Z\sÀ-ÿ\u00f1\u00d1\s]*$",
     message=_("Only letters and blank spaces are required"),
 )
 numeric_validator = RegexValidator(
