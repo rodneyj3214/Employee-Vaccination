@@ -1,10 +1,12 @@
 from django.contrib.auth import get_user_model
+from django_filters import rest_framework as filters
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from ..filters.users import EmployeesFilter
 from ..serializers.employees import EmployeeModelSerializer
 from ..serializers.users import UserModelSerializer, UserRegisterSerializer
 
@@ -15,6 +17,10 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
     serializer_class = UserModelSerializer
     queryset = User.objects.all()
     lookup_field = "username"
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = EmployeesFilter
+
+    # filterset_fields = ('employee__vaccinated','employee__vaccine__vaccine_type', '')
 
     def get_queryset(self, *args, **kwargs):
         assert isinstance(self.request.user.id, int)
