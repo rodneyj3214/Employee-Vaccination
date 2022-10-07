@@ -12,6 +12,35 @@ License: MIT
 Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
 
 ## Basic Commands
+### Deployment local with docker
+
+This can take a while, especially the first time you run this particular command on your development system:
+
+
+    $ docker-compose -f local.yml build
+#### Run the Stack
+This brings up both Django and PostgreSQL. The first time it is run it might take a while to get started, but subsequent runs will occur quickly.
+
+Open a terminal at the project root and run the following for local development:
+
+    $ docker-compose -f local.yml up
+You can also set the environment variable COMPOSE_FILE pointing to local.yml like this:
+
+    $ export COMPOSE_FILE=local.yml
+And then run:
+
+    $ docker-compose up
+To run in a detached (background) mode, just:
+
+    $ docker-compose up -d
+
+#### Execute Management Commands
+As with any shell command that we wish to run in our container, this is done using the `docker-compose -f local.yml run --rm` command:
+
+    $ docker-compose -f local.yml run --rm django python manage.py migrate
+    $ docker-compose -f local.yml run --rm django python manage.py createsuperuser
+
+By default you can access with `http://localhost:8000`
 
 ### Setting Up Your Users
 
