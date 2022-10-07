@@ -1,5 +1,7 @@
+from django.contrib.auth import authenticate  # , password_validation
 from django.core.mail import EmailMultiAlternatives
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
 
 from emlpoyee_vaccination.users.models import Employee, User
@@ -27,6 +29,22 @@ class UserModelSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "url": {"view_name": "api:user-detail", "lookup_field": "username"}
         }
+
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=64)
+
+    def validate(self, data):
+        user = authenticate(username=data["email"], password=data["password"])
+        if not user:
+            raise serializers.ValidationError("Invalid Credentials")
+        self.context["user"] = user
+        return data
+
+    def create(self, data):
+        token, created = Token.objects.get_or_create(user=self.context["user"])
+        return self.context["user"], token.key
 
 
 class UserRegisterSerializer(serializers.Serializer):

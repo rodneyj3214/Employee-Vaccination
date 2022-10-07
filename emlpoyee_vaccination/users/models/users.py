@@ -40,6 +40,9 @@ class User(GenericModel, AbstractUser):
         _("Identifier"), validators=[numeric_validator], max_length=15
     )
 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
+
     def get_absolute_url(self):
         """Get url for user's detail view.
 
