@@ -5,7 +5,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateMode
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from ..serializers.employees import EmployeeInformationSerializer
+from ..serializers.employees import EmployeeModelSerializer
 from ..serializers.users import UserModelSerializer, UserRegisterSerializer
 
 User = get_user_model()
@@ -22,14 +22,21 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             return self.queryset.filter(id=self.request.user.id)
         return self.queryset
 
-    @action(detail=False, methods=["post", "put", "patch"])
-    def employee(self, request):
-        serializer = EmployeeInformationSerializer(
-            data=request.data, context={"request": request}
+    @action(
+        detail=True, methods=["put", "patch"], serializer_class=EmployeeModelSerializer
+    )
+    def employee(self, request, *args, **kwargs):
+        user = self.get_object()
+        employee = user.employee
+        partial = request.method == "PATCH"
+        serializer = EmployeeModelSerializer(
+            employee, data=request.data, partial=partial, context={"request": request}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        # data = UserModelSerializer(user, context={"request": request}).data
+        data = serializer.data
+        return Response(status=status.HTTP_200_OK, data=data)
 
     @action(detail=False, methods=["post"])
     def user(self, request):
