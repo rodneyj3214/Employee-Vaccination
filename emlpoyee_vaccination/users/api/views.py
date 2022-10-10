@@ -9,11 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 from ..filters.users import EmployeesFilter
 from ..permissions import IsAdmin
 from ..serializers.employees import EmployeeModelSerializer
-from ..serializers.users import (
-    UserLoginSerializer,
-    UserModelSerializer,
-    UserRegisterSerializer,
-)
+from ..serializers.users import UserLoginSerializer, UserModelSerializer
 
 User = get_user_model()
 
@@ -36,7 +32,6 @@ class UserViewSet(ModelViewSet):
             permissions = [AllowAny]
         else:
             permissions = [IsAuthenticated]
-
         if self.action not in ["employee", "list", "retrieve"]:
             permissions.append(IsAdmin)
         return [permission() for permission in permissions]
@@ -67,11 +62,3 @@ class UserViewSet(ModelViewSet):
         # data = UserModelSerializer(user, context={"request": request}).data
         data = serializer.data
         return Response(status=status.HTTP_200_OK, data=data)
-
-    @action(detail=False, methods=["post"])
-    def user(self, request):
-        serializer = UserRegisterSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        data = UserModelSerializer(user, context={"request": request}).data
-        return Response(data, status=status.HTTP_201_CREATED)
